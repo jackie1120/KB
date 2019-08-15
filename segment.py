@@ -266,7 +266,7 @@ def find_best_semantic_seg(s, key_list):
                     dp[j][i] = dp[j][k]+'|'+dp[j+k][i+j]
                     break
 
-    result = [(i,j,y) for i,x in enumerate(dp) for j,y in enumerate(x)]
+    result = [[i,j,y] for i,x in enumerate(dp) for j,y in enumerate(x)]
     result = sorted(result, key=lambda x:(x[0],100000 - (x[1]-x[0])))
 
     if len(result) == 0:
@@ -461,11 +461,7 @@ def find_pattern_by_dict(sentence_dic):
     pattern_dic = {}
     i = 0
     for s in key_dic:
-        #if i == 5000:
-        #    break
         i += 1
- #       s = '分配油路接头漏油'
-        print ('\ninput is ', s)
         print (i)
         machine_seg = find_key_in_dict(s, machine)    
         print ('machine seg is ', machine_seg)
@@ -477,6 +473,7 @@ def find_pattern_by_dict(sentence_dic):
         for t in seg:
             if '|' in t[2]:
                 keyword = t[2].split('|')[0]
+                t[2] = t[2].replace('|','')
             else:
                 keyword = t[2]
             if keyword in machine:
@@ -487,10 +484,17 @@ def find_pattern_by_dict(sentence_dic):
         pattern,final_seg = find_pattern_by_pos(s,seg, semantic_flag)
         print (pattern, final_seg)
         if pattern not in pattern_dic:
-            pattern_dic[pattern] = 1
+            pattern_dic[pattern] = [final_seg]
         else:
-            pattern_dic[pattern] += 1
- #       exit()
+            pattern_dic[pattern].append(final_seg)
+
+    pattern_dic = dict(sorted(pattern_dic.items(),key=lambda x:len(x[1]), reverse=True))
+    with open("./pattern_dic", "w") as fp:
+        for k in pattern_dic:
+            fp.write(k+':\n')
+            for x in pattern_dic[k]:
+                fp.write(str(x)+'\n')
+            fp.write('\n')
 
     pattern_dic = dict(sorted(pattern_dic.items(),key=lambda x:x[1], reverse=True))
     print (pattern_dic)
@@ -498,5 +502,67 @@ def find_pattern_by_dict(sentence_dic):
         pickle.dump(pattern_dic, fp, protocol = pickle.HIGHEST_PROTOCOL)      
     pattern_df = pd.DataFrame(list(pattern_dic.items()))
     pattern_df.to_csv('./pattern_dic_log.csv')
+    valid = len(pattern_dic['machine|issue']
+                + pattern_dic['machine|issue|issue']
+                + pattern_dic['machine|issue|a']
+                + pattern_dic['vn|machine|issue']
+                + pattern_dic['machine|issue|x']
+                + pattern_dic['machine|v|issue']
+                + pattern_dic['m|machine|issue']
+                + pattern_dic['machine|vn|issue']
+                + pattern_dic['n|v|machine|issue']
+                + pattern_dic['v|machine|machine|issue']
+                + pattern_dic['machine|a|issue']
+                + pattern_dic['v|machine|issue'])
+    print ('complete ration = ', valid/1.0/i, 'total is ', i)
 
-find_pattern_by_dict('./question_dic_separated.pickle')
+def deal_with_pattern(pattern, seg_index, pattern_dic_path, semantic1, semantic2):
+    with open(pattern_dic_path, "rb") as fp: 
+        pattern_dic = pickle.load(fp) 
+    key_list = pattern_dic[pattern]
+
+    temp = []
+    for keys in key_list:
+        temp.append(''.join(keys[:seg_index])+'\n')
+    temp = list(set(temp))
+    with open(semantic1, "w") as fp:
+        for t in temp:
+            fp.write(t)
+
+    temp = []
+    for keys in key_list:
+        temp.append(''.join(keys[seg_index:])+'\n')
+    temp = list(set(temp))
+    with open(semantic2, "w") as fp:
+        for t in temp:
+            fp.write(t)
+
+#find_pattern_by_dict('./question_dic_separated.pickle')
+
+#deal_with_pattern('machine|v|n', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('n|issue', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|d|v', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v|v', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|n|issue', 2, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|a', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('n|machine|issue', 2, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|n|v', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('v|n', 0, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v|issue', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v|issue', 2, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|n', 2, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|d|issue', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|n|issue', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v|vn', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|issue|n', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('v|issue', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('issue|issue', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v|machine|issue', 3, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('v|v|machine', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|v|machine', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|d|vn', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('v|n|issue', 2, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|issue|v', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|n|vn', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+#deal_with_pattern('machine|d', 1, './pattern_dic.pickle', './new_machine', './new_issue')
