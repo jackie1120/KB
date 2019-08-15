@@ -566,3 +566,91 @@ def deal_with_pattern(pattern, seg_index, pattern_dic_path, semantic1, semantic2
 #deal_with_pattern('machine|issue|v', 1, './pattern_dic.pickle', './new_machine', './new_issue')
 #deal_with_pattern('machine|n|vn', 1, './pattern_dic.pickle', './new_machine', './new_issue')
 #deal_with_pattern('machine|d', 1, './pattern_dic.pickle', './new_machine', './new_issue')
+
+def find_topo_by_ne(sentence_dic):
+    machine = pd.read_csv('./machine_now.csv')
+    machine = machine['0'].tolist()
+    issue = pd.read_csv('./issue_now.csv')
+    issue = issue['0'].tolist()
+    key_dic = {}
+    with open(sentence_dic, "rb") as fp: 
+        key_dic = pickle.load(fp) 
+
+    ne_machine_dic = {}
+    ne_issue_dic = {}
+    i = 0
+    for s in key_dic:
+        i += 1
+        print (i)
+        #if i == 1000:
+            #break
+
+        machine_seg = find_key_in_dict(s, machine)    
+        print ('machine seg is ', machine_seg)
+        issue_seg = find_key_in_dict(s, issue)    
+        print ('issue seg is ', issue_seg)
+        seg = semantic_segment(s, machine_seg, issue_seg)
+        semantic_flag = {}
+        for t in seg:
+            if '|' in t[2]:
+                keyword = t[2].split('|')[0]
+                t[2] = t[2].replace('|','')
+            else:
+                keyword = t[2]
+            if keyword in machine:
+                semantic_flag[t[2]]='machine'
+            if keyword in issue:
+                semantic_flag[t[2]]='issue'
+        print ('semantic flag ', semantic_flag)
+        pattern,final_seg = find_pattern_by_pos(s,seg, semantic_flag)
+        pattern = pattern.split('|')
+        if 'machine' in pattern:
+            machine_index = pattern.index('machine')
+        else:
+            machine_index = -1
+        if 'issue' in pattern:
+            issue_index = pattern.index('issue')
+        else:
+            issue_index = -1
+        print (pattern, final_seg, machine_index, issue_index)
+        if machine_index != -1 and issue_index != -1:
+            ne_machine = final_seg[machine_index]
+            ne_issue = final_seg[issue_index]
+            if ne_machine not in ne_machine_dic:
+                ne_machine_dic[ne_machine] = [ne_issue]
+            else:
+                if ne_issue not in ne_machine_dic[ne_machine]:
+                    ne_machine_dic[ne_machine].append(ne_issue)
+
+            if ne_issue not in ne_issue_dic:
+                ne_issue_dic[ne_issue] = [ne_machine]
+            else:
+                if ne_machine not in ne_issue_dic[ne_issue]:
+                    ne_issue_dic[ne_issue].append(ne_machine)
+
+    kv_list = sorted(ne_machine_dic.items(),key=lambda item:len(item[1]), reverse = True)
+    ne_machine_dic = {}
+    for kv in kv_list:
+        ne_machine_dic[kv[0]] = kv[1]
+
+    kv_list = sorted(ne_issue_dic.items(),key=lambda item:len(item[1]), reverse = True)
+    ne_issue_dic = {}
+    for kv in kv_list:
+        ne_issue_dic[kv[0]] = kv[1]
+
+    print (ne_machine_dic)
+    with open("./kb_machine.txt", "w") as fp:
+        for k in ne_machine_dic:
+            fp.write('<ne>'+k+':\n')
+            for x in ne_machine_dic[k]:
+                fp.write('\t<attribute>'+str(x)+'\n')
+            fp.write('\n')
+    print (ne_issue_dic)
+    with open("./kb_issue.txt", "w") as fp:
+        for k in ne_issue_dic:
+            fp.write('<ne>'+k+':\n')
+            for x in ne_issue_dic[k]:
+                fp.write('\t<attribute>'+str(x)+'\n')
+            fp.write('\n')
+
+find_topo_by_ne('./question_dic_separated.pickle')
