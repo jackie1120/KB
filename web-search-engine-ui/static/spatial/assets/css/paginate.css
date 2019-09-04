@@ -60,6 +60,13 @@ html, body {
     cursor: default;
     opacity: 0.6;
 }
+
+.pagination-item--cluster {
+    font-size: 20px;
+	list-style-type: none;
+	display: inline-block;
+	margin: 0 1em 0 0;
+}
 .pagination-item--wide.first {
 	margin: 0 1em 0 0;
 }
