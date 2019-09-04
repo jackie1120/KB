@@ -462,7 +462,7 @@ def find_pattern_by_dict(sentence_dic):
     i = 0
     for s in key_dic:
         i += 1
-        print (i)
+        print (i,len(key_dic))
         machine_seg = find_key_in_dict(s, machine)    
         print ('machine seg is ', machine_seg)
         issue_seg = find_key_in_dict(s, issue)    
@@ -653,4 +653,62 @@ def find_topo_by_ne(sentence_dic):
                 fp.write('\t<attribute>'+str(x)+'\n')
             fp.write('\n')
 
-find_topo_by_ne('./question_dic_separated.pickle')
+    with open("./machine_dic.pickle", "wb") as fp:
+        pickle.dump(ne_machine_dic, fp, protocol = pickle.HIGHEST_PROTOCOL)      
+    with open("./issue_dic.pickle", "wb") as fp:
+        pickle.dump(ne_issue_dic, fp, protocol = pickle.HIGHEST_PROTOCOL)      
+
+def find_kb_by_sentence(s, machine, issue, ne_machine_dic, ne_issue_dic ):
+    machine_seg = find_key_in_dict(s, machine)    
+    print ('machine seg is ', machine_seg)
+    issue_seg = find_key_in_dict(s, issue)    
+    print ('issue seg is ', issue_seg)
+    seg = semantic_segment(s, machine_seg, issue_seg)
+    semantic_flag = {}
+    for t in seg:
+        if '|' in t[2]:
+            keyword = t[2].split('|')[0]
+            t[2] = t[2].replace('|','')
+        else:
+            keyword = t[2]
+        if keyword in machine:
+            semantic_flag[t[2]]='machine'
+        if keyword in issue:
+            semantic_flag[t[2]]='issue'
+    print ('semantic flag ', semantic_flag)
+    pattern,final_seg = find_pattern_by_pos(s,seg, semantic_flag)
+    pattern = pattern.split('|')
+    if 'machine' in pattern:
+        machine_index = pattern.index('machine')
+        ne_machine = final_seg[machine_index]
+        kb_machine = ne_machine_dic[ne_machine]
+    else:
+        ne_machine = None
+        kb_machine = None
+        
+    if 'issue' in pattern:
+        issue_index = pattern.index('issue')
+        ne_issue = final_seg[issue_index]
+        kb_issue = ne_issue_dic[ne_issue]
+    else:
+        ne_issue = None
+        kb_issue = None
+    
+    return ne_machine, kb_machine, ne_issue, kb_issue
+
+# find_topo_by_ne('./question_dic_separated.pickle')
+
+machine = pd.read_csv('./machine_now.csv')
+machine = machine['0'].tolist()
+issue = pd.read_csv('./issue_now.csv')
+issue = issue['0'].tolist()
+with open('./machine_dic.pickle', "rb") as fp: 
+    ne_machine_dic = pickle.load(fp) 
+with open('./issue_dic.pickle', "rb") as fp: 
+    ne_issue_dic = pickle.load(fp) 
+result = find_kb_by_sentence('泵车不工作', machine, issue, ne_machine_dic, ne_issue_dic)
+print(result)
+
+find_pattern_by_dict('./issue_dic.pickle')
+
+
