@@ -2110,7 +2110,7 @@
 		margin: 0 0 2em 0;
 	}
 
-	label {
+	form > label {
 		color: #484848;
 		display: block;
 		font-size: 0.9em;

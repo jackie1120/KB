@@ -74,8 +74,8 @@
 				return true;
 			});
 
-			$(".container h2 svg").on("click", function(){
-				$("#query").val($("#queryeditable").text());
+			$(".search-bar img.search").on("click", function(){
+				// $("#query").val($("#queryeditable").text());
 				$("form[name=search]").submit();
 			})
 

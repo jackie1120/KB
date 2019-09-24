@@ -12,6 +12,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="static/spatial/assets/css/main.css" />
 		<link rel="stylesheet" href="static/spatial/assets/css/paginate.css" />
+        <link rel="stylesheet" href="static/spatial/assets/css/common.css" />
 		<script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
 		{{ script1|safe }}
 		{{ script2|safe }}
@@ -36,31 +37,126 @@
 
 		<!-- RESULTS -->
 		{%if query%}
-		<section id="three" class="wrapper style1">
-			<div class="image rounded" style="float:left;margin-left:30px;top:-20px;margin-right:20px">
-				<a href="/"><img src="static/spatial/images/caledonie.jpg" alt="" style="width:100px;height:100px"/></a>
-			</div>
-			<div class="container">
-				<form action="/" method="GET" name="search" role="search">
-					<header class="major special">
-						<input name="query" id="query" type="text" style="display:none" value="{{query}}"></input>
-						<h2 id="queryeditable" contenteditable="true">{{query}} <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></h2>
-						<p>大约 {{total}} 结果 ({{response_time}} 秒)</p>
-					</header>
-				</form>
-
-				<div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
-
-					<ul class="pagination">
+		<section id="three">
+			<div class="search-block">
+				<div class="content">
+					<div class="search-bar">
+						<a href="/"><img class="logo" src="static/spatial/assets/icons/icon-knowlege.png" alt="知识库"></a>
+						<form action="/" method="GET" name="search" role="search">
+							<input name="query" id="query" type="text" value="{{query}}"></input>
+						</form>
+						<img id="queryeditable" class="search" src="static/spatial/assets/icons/search@2x.png" alt="搜索">
+					</div>
+					<ul class="search-recommend">
 						{% for filter in filters %}
-						<li class="pagination-item--cluster">
-							<a class="pagination-link--cluster" href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a>
-						</li>
+							<li class="search-recommend-item {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
 						{% endfor %}
+						<li class="search-recommend-item">更多 > </li>
 					</ul>
-
 				</div>
-				<div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
+				<div class="slider">&nbsp;</div>
+			</div>
+			<div class="main-block">
+				<div class="content">
+					<div class="content-title section-title">
+						<li class="recommend">
+							<img src="static/spatial/assets/icons/recommend-green@2x.png" alt="推荐"><span>推荐</span>
+						</li>
+						<li class="time">
+							<img src="static/spatial/assets/icons/time@2x.png" alt="时间"><span>时间</span>
+						</li>
+						<li class="description">
+							找到约<span>{{total}}</span>条结果，用时<span>{{response_time}}</span>秒
+						</li>
+					</div>
+					<div class="content-list">
+						{%for result in results%}
+							<div class="section-content content-item">
+								<div class="item-main">
+									<div class="item-header">
+										<label class="label-q">现象</label>
+										<h3><a href="{{result.url}}">{{result.title|safe|truncate_title}}</a></h3>
+									</div>
+									<div class="item-content">
+										<label class="label-a">方案</label>
+										<div>
+											<p>故障原因：{{result.url|truncate_url}}</p>
+											<p>解决方案：{{result.description|safe|truncate_description}}</p>		
+										</div>
+									</div>
+									<div class="item-meta">
+										<div class="item-time"><span>2019-8-23 11:55</span></div>
+										<div class="item-flag">
+											<li>
+												<img src="static/spatial/assets/icons/data-from@2x.png" alt="数据来源"><span>专家库</span>
+											</li>
+											<li>
+												<img src="static/spatial/assets/icons/view@2x.png" alt="浏览量"><span>229</span>
+											</li>
+											<li>
+												<img src="static/spatial/assets/icons/good-green@2x.png" alt="点赞"><span class="active">130</span>
+											</li>
+										</div>
+									</div>
+								</div>
+								<div class="item-image" style="{%if not result.thumbnail%}visibility:hidden;display:none{%endif%}">
+									<img src="static/spatial/assets/css/images/result-img.png" alt="图片">
+								</div>
+							</div>
+						{%endfor%}
+					</div>
+					<div class="content-page">
+						<li>
+							<a href=""><img src="static/spatial/assets/icons/first@2x.png" alt="首页"><span>首页</span></a>
+						</li>
+						<li>
+							<a class="{%if page==0%}disabled{%endif%}" href="/select?query={{query}}&start={{(page-1)*hits}}&hits={{hits}}"><img src="static/spatial/assets/icons/previous@2x.png" alt="上一页"><span>上一页</span></a>
+						</li>
+						<li>
+							<span>{{page+1}}/{{maxpage+1}}</span>
+						</li>
+						<li>
+							<a class="{%if page==maxpage%}disabled{%endif%}" href="/select?query={{query}}&start={{(page+1)*hits}}&hits={{hits}}"><img src="static/spatial/assets/icons/next@2x.png" alt="下一页"><span>下一页</span></a>
+						</li>
+						<li>
+							<a href=""><img src="static/spatial/assets/icons/last@2x.png" alt="末页"><span>末页</span></a>
+						</li>
+					</div>
+				</div>
+				<div class="slider-block">
+					<div class="slider-section">
+						<div class="section-title">
+							<li>
+								<img src="static/spatial/assets/icons/graph-green@2x.png" alt="知识图谱">
+								<span>知识图谱</span>
+							</li>
+						</div>
+						<div class="section-content">
+							<div id="knowlege-chart"></div>
+						</div>
+					</div>
+					<div class="slider-section">
+						<div class="section-title">
+							<li>
+								<img src="static/spatial/assets/icons/similar@2x.png" alt="相似内容推荐">
+								<span>相似内容推荐</span>
+							</li>
+						</div>
+						<div class="section-content">
+							<ul>
+								<li><label>1</label> 臂架有异响</li>
+								<li><label>2</label> 臂架动作卡滞</li>
+								<li><label>3</label> 臂架动作时，慢档动作太慢，调节臂架电流.臂架动作时，慢档动作太慢，调节臂架电流</li>
+								<li><label>4</label> 臂架有异响</li>
+								<li><label>5</label> 臂架动作卡滞</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="container">
+				<div class="pagination-container hidden wow zoomIn mar-b-1x" data-wow-duration="0.5s">
 
 					<ul class="pagination">
 						<li class="pagination-item--cluster">
@@ -72,42 +168,6 @@
 					</ul>
 
 				</div>
-
-
-				<div class="feature-grid">
-					{%for result in results%}
-					<div class="feature">
-						<div class="image rounded">
-							<img style="{%if not result.thumbnail%}visibility:hidden{%endif%}" src="{{result.thumbnail}}" alt="" />
-						</div>
-						<div class="content">
-							<header>
-								<h4><a href="{{result.url}}">{{result.title|safe|truncate_title}}</a></h4>
-								<p>故障原因：{{result.url|truncate_url}}</p>
-							</header>
-							<p>解决方案：{{result.description|safe|truncate_description}}</p>
-						</div>
-					</div>
-					{%endfor%}
-				</div>
-			</div>
-
-			<div class="pagination-container wow zoomIn mar-b-1x" data-wow-duration="0.5s">
-
-				<ul class="pagination">
-					<li class="pagination-item--wide first">
-						<a class="pagination-link--wide first {%if page==0%}disabled{%endif%}" href="/select?query={{query}}&start={{(page-1)*hits}}&hits={{hits}}">Previous</a>
-					</li>
-					{% for i in range_pages %}
-					<li class="pagination-item {%if page == i%}is-active{%endif%} {%if loop.index0 == 0%}first-number{%endif%}">
-						<a class="pagination-link" href="/select?query={{query}}&start={{i*hits}}&hits={{hits}}">{{i+1}}</a>
-					</li>
-					{% endfor %}
-					<li class="pagination-item--wide last">
-						<a class="pagination-link--wide last {%if page==maxpage%}disabled{%endif%}" href="/select?query={{query}}&start={{(page+1)*hits}}&hits={{hits}}">Next</a>
-					</li>
-				</ul>
-
 			</div>
 
 		</section>
@@ -160,7 +220,7 @@
 				</ul>
 				<ul class="copyright">
 					<li>&copy; Byprog - Anthony Sigogne</li>
-					<!--li>Design: <a href="http://templated.co">TEMPLATED</a></li-->
+					<li>Design: <a href="http://templated.co">TEMPLATED</a></li>
 				</ul>
 			</div>
 		</footer>
@@ -171,7 +231,77 @@
 		<script src="static/spatial/assets/js/skel.min.js"></script>
 		<script src="static/spatial/assets/js/util.js"></script>
 		<script src="static/spatial/assets/js/main.js"></script>
-		<script src="static/spatial/assets/js/paginate.js"></script>
+		<!-- <script src="static/spatial/assets/js/paginate.js"></script> -->
+		<script src="static/spatial/assets/js/echarts.js"></script>
+		<script>
+			var nodes = {{ graph_nodes|tojson }}
+			nodes = nodes.splice(0, 10)
+			var center_node = {{center_node|tojson}}
+			var graph = {
+				nodes: [],
+				links: []
+			}
+			// 初始中心节点
+			graph.nodes.push({
+				name: center_node,
+				symbolSize: 80,
+				itemStyle: {
+					// color: {
+					// 	type: 'linear',
+					// 	x: 0,
+					// 	y: 0,
+					// 	x2: 0,
+					// 	y2: 1,
+					// 	colorStops: [{
+					// 			offset: 0, color: '#aedd78'
+					// 	}, {
+					// 			offset: 1, color: '#7dce51'
+					// 	}],
+					// 	global: false
+					// }
+					color: '#aedd78'
+				},
+				x: null,
+				y: null
+			})
+			nodes.forEach(function(node) {
+				var data = {},link = {}
+				data.x = data.y = null
+				data.draggable = true
+				data.name = node
+				data.itemStyle = {
+					color: '#7dbee2'
+				},
+				graph.nodes.push(data)
+				link.source = center_node
+				link.target = node
+				graph.links.push(link)
+			})
+			var knowlegeChart = echarts.init(document.getElementById("knowlege-chart"))
+			var option = {
+					animation: false,
+					series : [
+						{
+							type: 'graph',
+							layout: 'force',
+							force: {
+								repulsion: 550
+							},
+							symbolSize: 60,
+							roam: true,
+							label: {
+								normal: {
+									show: true
+								},
+								borderColor: '#ffffff'
+							},
+							data: graph.nodes,
+							links: graph.links,
+						}
+					]
+				}
+        knowlegeChart.setOption(option)
+		</script>
 
 	</body>
 </html>
