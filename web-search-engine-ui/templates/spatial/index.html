@@ -12,12 +12,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="static/spatial/assets/css/main.css" />
 		<link rel="stylesheet" href="static/spatial/assets/css/paginate.css" />
-        <link rel="stylesheet" href="static/spatial/assets/css/common.css" />
-		<script type="text/javascript" src="http://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>
-		{{ script1|safe }}
-		{{ script2|safe }}
+		<link rel="stylesheet" href="static/spatial/assets/css/common.css" />
 	</head>
-
 	<body class="landing">
 
 		<!-- HOME -->
@@ -49,9 +45,17 @@
 					</div>
 					<ul class="search-recommend">
 						{% for filter in filters %}
-							<li class="search-recommend-item {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+							{% if filters|length < 5 %}
+								<li class="search-recommend-item {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+							{% elif loop.index <= 5 %}
+								<li class="search-recommend-item {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+							{% elif loop.last%}
+							<li style="display: none" class="search-recommend-item  {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+							<li class="search-recommend-item"><a id="show-more" href="">更多 ></a></li>
+							{% else %}
+								<li style="display: none" class="search-recommend-item  {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+							{% endif %}
 						{% endfor %}
-						<li class="search-recommend-item">更多 > </li>
 					</ul>
 				</div>
 				<div class="slider">&nbsp;</div>
@@ -146,27 +150,12 @@
 							<ul>
 								<li><label>1</label> 臂架有异响</li>
 								<li><label>2</label> 臂架动作卡滞</li>
-								<li><label>3</label> 臂架动作时，慢档动作太慢，调节臂架电流.臂架动作时，慢档动作太慢，调节臂架电流</li>
-								<li><label>4</label> 臂架有异响</li>
-								<li><label>5</label> 臂架动作卡滞</li>
+								<li><label>3</label> 动作臂架二与三臂架有异响</li>
+								<li><label>4</label> 臂架压油滤芯压差发汛器漏油严重</li>
+								<li><label>5</label> 臂架动作时，慢档动作太慢，调节臂架电流</li>
 							</ul>
 						</div>
 					</div>
-				</div>
-			</div>
-
-			<div class="container">
-				<div class="pagination-container hidden wow zoomIn mar-b-1x" data-wow-duration="0.5s">
-
-					<ul class="pagination">
-						<li class="pagination-item--cluster">
-							<a class="pagination-link--cluster">{{ div1|safe }}</a>
-						</li>
-						<li class="pagination-item--cluster">
-							<a class="pagination-link--cluster">{{ div2|safe }}</a>
-						</li>
-					</ul>
-
 				</div>
 			</div>
 
@@ -300,7 +289,15 @@
 						}
 					]
 				}
-        knowlegeChart.setOption(option)
+			knowlegeChart.setOption(option)
+			
+			$(document).ready(function() {
+				$("#show-more").click(function(e) {
+					e.preventDefault()
+					$(this).parent().parent().children().css({"display": "block"})
+					$(this).parent().css({"display": "none"})
+				})
+			})
 		</script>
 
 	</body>
