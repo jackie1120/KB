@@ -57,6 +57,8 @@ section {
 }
 .search-block .content .search-bar form input:focus {
   outline: none;
+  border: 1px solid #dedede !important;
+  box-shadow: none;
 }
 .search-block .content .search-recommend {
   margin: 15px 0 5px 0;

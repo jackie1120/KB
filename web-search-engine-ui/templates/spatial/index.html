@@ -39,21 +39,22 @@
 					<div class="search-bar">
 						<a href="/"><img class="logo" src="static/spatial/assets/icons/icon-knowlege.png" alt="知识库"></a>
 						<form action="/" method="GET" name="search" role="search">
-							<input name="query" id="query" type="text" value="{{query}}"></input>
+							<input name="query" id="query" type="text" value="{{query}} {{filter_key}}"></input>
 						</form>
 						<img id="queryeditable" class="search" src="static/spatial/assets/icons/search@2x.png" alt="搜索">
 					</div>
 					<ul class="search-recommend">
 						{% for filter in filters %}
-							{% if filters|length < 5 %}
+							{% if filters|length < 14 %}
 								<li class="search-recommend-item {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
-							{% elif loop.index <= 5 %}
+							{% elif loop.index <= 14 %}
 								<li class="search-recommend-item {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
 							{% elif loop.last%}
-							<li style="display: none" class="search-recommend-item  {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+							<li style="display: none" class="search-recommend-item more  {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
 							<li class="search-recommend-item"><a id="show-more" href="">更多 ></a></li>
+							<li class="search-recommend-item" style="display: none"><a id="show-less" href="">收起 ^</a></li>
 							{% else %}
-								<li style="display: none" class="search-recommend-item  {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
+								<li style="display: none" class="search-recommend-item more  {%if filter==filter_key%}active{%endif%}"><a href="/?query={{query}}&hits={{hits}}&filter_key={{filter}}">{{filter}}</a></li>
 							{% endif %}
 						{% endfor %}
 					</ul>
@@ -98,7 +99,7 @@
 												<img src="static/spatial/assets/icons/view@2x.png" alt="浏览量"><span>229</span>
 											</li>
 											<li>
-												<img src="static/spatial/assets/icons/good-green@2x.png" alt="点赞"><span class="active">130</span>
+												<img src="static/spatial/assets/icons/good-normal@2x.png" alt="点赞"><span>130</span>
 											</li>
 										</div>
 									</div>
@@ -221,84 +222,92 @@
 		<script src="static/spatial/assets/js/util.js"></script>
 		<script src="static/spatial/assets/js/main.js"></script>
 		<!-- <script src="static/spatial/assets/js/paginate.js"></script> -->
-		<script src="static/spatial/assets/js/echarts.js"></script>
-		<script>
-			var nodes = {{ graph_nodes|tojson }}
-			nodes = nodes.splice(0, 10)
-			var center_node = {{center_node|tojson}}
-			var graph = {
-				nodes: [],
-				links: []
-			}
-			// 初始中心节点
-			graph.nodes.push({
-				name: center_node,
-				symbolSize: 80,
-				itemStyle: {
-					// color: {
-					// 	type: 'linear',
-					// 	x: 0,
-					// 	y: 0,
-					// 	x2: 0,
-					// 	y2: 1,
-					// 	colorStops: [{
-					// 			offset: 0, color: '#aedd78'
-					// 	}, {
-					// 			offset: 1, color: '#7dce51'
-					// 	}],
-					// 	global: false
-					// }
-					color: '#aedd78'
-				},
-				x: null,
-				y: null
-			})
-			nodes.forEach(function(node) {
-				var data = {},link = {}
-				data.x = data.y = null
-				data.draggable = true
-				data.name = node
-				data.itemStyle = {
-					color: '#7dbee2'
-				},
-				graph.nodes.push(data)
-				link.source = center_node
-				link.target = node
-				graph.links.push(link)
-			})
-			var knowlegeChart = echarts.init(document.getElementById("knowlege-chart"))
-			var option = {
-					animation: false,
-					series : [
-						{
-							type: 'graph',
-							layout: 'force',
-							force: {
-								repulsion: 550
-							},
-							symbolSize: 60,
-							roam: true,
-							label: {
-								normal: {
-									show: true
-								},
-								borderColor: '#ffffff'
-							},
-							data: graph.nodes,
-							links: graph.links,
-						}
-					]
-				}
-			knowlegeChart.setOption(option)
-			
-			$(document).ready(function() {
-				$("#show-more").click(function(e) {
-					e.preventDefault()
-					$(this).parent().parent().children().css({"display": "block"})
-					$(this).parent().css({"display": "none"})
-				})
-			})
-		</script>
+        {%if query%}
+            <script src="static/spatial/assets/js/echarts.js"></script>
+            <script>
+                var nodes = {{ graph_nodes|tojson }}
+                nodes = nodes.splice(0, 10)
+                var center_node = {{center_node|tojson}}
+                var graph = {
+                    nodes: [],
+                    links: []
+                }
+                // 初始中心节点
+                graph.nodes.push({
+                    name: center_node,
+                    symbolSize: 80,
+                    itemStyle: {
+                        // color: {
+                        // 	type: 'linear',
+                        // 	x: 0,
+                        // 	y: 0,
+                        // 	x2: 0,
+                        // 	y2: 1,
+                        // 	colorStops: [{
+                        // 			offset: 0, color: '#aedd78'
+                        // 	}, {
+                        // 			offset: 1, color: '#7dce51'
+                        // 	}],
+                        // 	global: false
+                        // }
+                        color: '#aedd78'
+                    },
+                    x: null,
+                    y: null
+                })
+                nodes.forEach(function(node) {
+                    var data = {},link = {}
+                    data.x = data.y = null
+                    data.draggable = true
+                    data.name = node
+                    data.itemStyle = {
+                        color: '#7dbee2'
+                    },
+                    graph.nodes.push(data)
+                    link.source = center_node
+                    link.target = node
+                    graph.links.push(link)
+                })
+                var knowlegeChart = echarts.init(document.getElementById("knowlege-chart"))
+                var option = {
+                        animation: false,
+                        series : [
+                            {
+                                type: 'graph',
+                                layout: 'force',
+                                force: {
+                                    repulsion: 550
+                                },
+                                symbolSize: 60,
+                                roam: true,
+                                label: {
+                                    normal: {
+                                        show: true
+                                    },
+                                    borderColor: '#ffffff'
+                                },
+                                data: graph.nodes,
+                                links: graph.links,
+                            }
+                        ]
+                    }
+                knowlegeChart.setOption(option)
+
+                $(document).ready(function() {
+                    $("#show-more").click(function(e) {
+                        e.preventDefault()
+                        $(this).parent().parent().children().css({"display": "block"})
+                        $(this).parent().css({"display": "none"})
+                    })
+                    $("#show-less").click(function(e) {
+                        e.preventDefault()
+                        $(this).parent().css({"display": "none"})
+                        $("#show-more").parent().css({"display": "block"})
+                        $(".search-recommend").children(".more").css({"display": "none"})
+                    })
+                })
+            </script>
+        {% endif %}
 
 	</body>
 </html>

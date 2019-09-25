@@ -50,6 +50,8 @@ section {
           font-size: 14pt;
           &:focus {
             outline:none;
+            border: 1px solid #dedede !important;
+            box-shadow: none;
           }
         }
       }
