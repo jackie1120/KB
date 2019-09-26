@@ -82,7 +82,7 @@ section {
   color: inherit;
 }
 .search-block .content .search-recommend li:hover {
-  background-color: #a9cd39;
+  background-color: #37d3af;
   color: #ffffff;
   cursor: pointer;
 }
@@ -90,7 +90,7 @@ section {
   margin-right: 0;
 }
 .search-block .content .search-recommend li.active {
-  background: #37d3af;
+  background: #a9cd39;
   color: #ffffff;
 }
 .search-block .slider {
@@ -161,10 +161,16 @@ section {
 }
 .main-block .content .content-item .item-main .item-header h3 {
   margin: 0 10px;
+  height: 30px;
+  line-height: 30px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .main-block .content .content-item .item-main .item-header h3 a {
   font-size: 12pt;
   color: #3d414c;
+  display: inline-block;
+  height: 100%;
 }
 .main-block .content .content-item .item-main .item-content {
   margin-top: 10px;
@@ -180,6 +186,10 @@ section {
   color: #fff;
   padding: 5px;
   flex: 0 0 auto;
+}
+.main-block .content .content-item .item-main .item-content div {
+  height: 72px;
+  overflow: hidden;
 }
 .main-block .content .content-item .item-main .item-content p {
   margin: 0 0 0 10px;
@@ -229,7 +239,7 @@ section {
 }
 .main-block .content .content-item .item-image {
   width: 240px;
-  height: 135px;
+  height: 179px;
   flex: 1 0 240px;
   margin-left: 10px;
 }
@@ -317,6 +327,7 @@ section {
   color: #3d414c;
   margin-bottom: 15px;
   line-height: 22px;
+  padding-left: 0;
 }
 .main-block .slider-block .slider-section .section-content ul li:last-child {
   margin-bottom: 0;

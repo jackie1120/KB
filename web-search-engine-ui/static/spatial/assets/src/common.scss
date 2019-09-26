@@ -76,7 +76,7 @@ section {
           color: inherit;
         }
         &:hover {
-          background-color: #a9cd39;
+          background-color: #37d3af;
           color: #ffffff;
           cursor: pointer;
         }
@@ -85,7 +85,7 @@ section {
         }
       }
       li.active {
-        background: #37d3af;
+        background: #a9cd39;
         color:#ffffff;
       }
     }
@@ -153,9 +153,15 @@ section {
           }
           h3 {
             margin: 0 10px;
+            height: 30px;
+            line-height: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
             a {
               font-size: 12pt;
-              color: #3d414c
+              color: #3d414c;
+              display: inline-block;
+              height: 100%;
             }
           }
         }
@@ -172,6 +178,10 @@ section {
             color: #fff;
             padding: 5px;
             flex: 0 0 auto;
+          }
+          div {
+            height: 72px;
+            overflow: hidden;
           }
           p {
             margin: 0 0 0 10px;
@@ -223,7 +233,7 @@ section {
       }
       .item-image {
         width: 240px;
-        height: 135px;
+        height: 179px;
         flex: 1 0 240px;
         margin-left: 10px;
         img {
@@ -309,6 +319,7 @@ section {
             color: #3d414c;
             margin-bottom: 15px;
             line-height: 22px;
+            padding-left: 0;
             &:last-child {
               margin-bottom: 0;
             }
